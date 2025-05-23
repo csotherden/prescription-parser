@@ -2,19 +2,32 @@ package datastore
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"time"
+
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
-	"fmt"
 	"github.com/csotherden/prescription-parser/ent"
 	"github.com/csotherden/prescription-parser/pkg/config"
+	"github.com/csotherden/prescription-parser/pkg/models"
 	_ "github.com/lib/pq"
 	"go.uber.org/zap"
-	"time"
 )
 
 type Datastore struct {
 	dbClient *ent.Client
 	logger   *zap.Logger
+}
+
+// SaveSample saves a sample prescription with its validated JSON
+func (d *Datastore) SaveSample(ctx context.Context, fileID, contentType, jsonContent string, embedding []float32) error {
+	var prescription models.Prescription
+	if err := json.Unmarshal([]byte(jsonContent), &prescription); err != nil {
+		return fmt.Errorf("failed to unmarshal prescription JSON: %w", err)
+	}
+
+	return d.SaveSamplePrescription(ctx, contentType, fileID, prescription, embedding)
 }
 
 func NewDatastore(cfg config.Config, logger *zap.Logger) (*Datastore, error) {

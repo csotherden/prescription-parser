@@ -3,14 +3,17 @@ package main
 import (
 	"context"
 	"flag"
-	"github.com/csotherden/prescription-parser/pkg/config"
-	"github.com/csotherden/prescription-parser/pkg/server"
-	"go.uber.org/zap"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/csotherden/prescription-parser/pkg/config"
+	"github.com/csotherden/prescription-parser/pkg/datastore"
+	"github.com/csotherden/prescription-parser/pkg/parser"
+	"github.com/csotherden/prescription-parser/pkg/server"
+	"go.uber.org/zap"
 
 	"github.com/joho/godotenv"
 )
@@ -36,8 +39,20 @@ func main() {
 	// Create server config
 	cfg := config.NewConfig()
 
+	// Initialize datastore
+	ds, err := datastore.NewDatastore(cfg, logger)
+	if err != nil {
+		logger.Fatal("Failed to initialize datastore", zap.Error(err))
+	}
+
+	// Initialize parser with the appropriate backend
+	parserInstance, err := parser.NewParser(cfg, ds, logger)
+	if err != nil {
+		logger.Fatal("Failed to initialize parser", zap.Error(err))
+	}
+
 	// Create and configure server
-	srv, err := server.NewServer(cfg, logger)
+	srv, err := server.NewServer(cfg, ds, parserInstance, logger)
 	if err != nil {
 		logger.Fatal("Failed to initialize server", zap.Error(err))
 	}

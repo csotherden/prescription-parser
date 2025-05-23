@@ -3,10 +3,12 @@ package server
 import (
 	"context"
 	"fmt"
+	"net/http"
+
 	"github.com/csotherden/prescription-parser/pkg/config"
 	"github.com/csotherden/prescription-parser/pkg/datastore"
 	"github.com/csotherden/prescription-parser/pkg/handlers/parser"
-	"net/http"
+	parserPkg "github.com/csotherden/prescription-parser/pkg/parser"
 
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
@@ -18,22 +20,22 @@ type Server struct {
 	router *mux.Router
 	server *http.Server
 	ds     *datastore.Datastore
+	parser parserPkg.Parser
 }
 
-func NewServer(cfg config.Config, logger *zap.Logger) (*Server, error) {
-	ds, err := datastore.NewDatastore(cfg, logger)
+func NewServer(cfg config.Config, ds *datastore.Datastore, parser parserPkg.Parser, logger *zap.Logger) (*Server, error) {
 	s := &Server{
 		config: cfg,
 		logger: logger,
 		router: mux.NewRouter(),
 		ds:     ds,
-	}
-	if err != nil {
-		return nil, fmt.Errorf("failed to initialize server: %w", err)
+		parser: parser,
 	}
 
 	s.setupMiddleware()
-	s.setupRoutes()
+	if err := s.setupRoutes(); err != nil {
+		return nil, fmt.Errorf("failed to setup routes: %w", err)
+	}
 
 	s.server = &http.Server{
 		Addr:         fmt.Sprintf("%s:%s", cfg.Host, cfg.Port),
@@ -53,10 +55,7 @@ func (s *Server) setupMiddleware() {
 
 func (s *Server) setupRoutes() error {
 	// Create handlers
-	parserHandler, err := parser.NewHandler(s.config, s.ds, s.logger)
-	if err != nil {
-		return fmt.Errorf("failed to initialize parser handler: %w", err)
-	}
+	parserHandler := parser.NewHandler(s.parser, s.ds, s.logger)
 
 	// Setup API routes
 	apiRouter := s.router.PathPrefix("/api").Subrouter()

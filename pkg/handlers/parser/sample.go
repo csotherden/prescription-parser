@@ -3,10 +3,11 @@ package parser
 import (
 	"encoding/json"
 	"fmt"
-	"go.uber.org/zap"
 	"net/http"
 	"path/filepath"
 	"strings"
+
+	"go.uber.org/zap"
 
 	"github.com/csotherden/prescription-parser/pkg/handlerutils"
 	"github.com/csotherden/prescription-parser/pkg/models"
