@@ -1,3 +1,6 @@
+// Package jobs provides functionality for tracking and managing asynchronous job processing.
+// It offers a simple API for creating, updating, and monitoring long-running operations
+// with automatic cleanup of completed jobs.
 package jobs
 
 import (
@@ -8,35 +11,46 @@ import (
 	"github.com/google/uuid"
 )
 
-// JobStatus represents the current status of a processing job
+// JobStatus represents the current status of a processing job.
+// It describes where the job is in its lifecycle.
 type JobStatus string
 
 const (
-	JobStatusPending    JobStatus = "pending"
+	// JobStatusPending indicates the job has been created but processing has not started.
+	JobStatusPending JobStatus = "pending"
+
+	// JobStatusProcessing indicates the job is currently being processed.
 	JobStatusProcessing JobStatus = "processing"
-	JobStatusComplete   JobStatus = "complete"
-	JobStatusFailed     JobStatus = "failed"
+
+	// JobStatusComplete indicates the job has completed successfully.
+	JobStatusComplete JobStatus = "complete"
+
+	// JobStatusFailed indicates the job encountered an error and could not complete.
+	JobStatusFailed JobStatus = "failed"
 )
 
-// Job represents a generic asynchronous job
+// Job represents a generic asynchronous job with its metadata and results.
+// It includes tracking information such as timing and current status.
 type Job struct {
-	ID          string     `json:"id"`
-	Type        string     `json:"type"`
-	Reference   string     `json:"reference"`
-	Status      JobStatus  `json:"status"`
-	StartedAt   time.Time  `json:"started_at"`
-	CompletedAt *time.Time `json:"completed_at,omitempty"`
-	Error       string     `json:"error,omitempty"`
-	Result      any        `json:"result"`
+	ID          string     `json:"id"`                     // Unique identifier for the job
+	Type        string     `json:"type"`                   // Type of job being processed
+	Reference   string     `json:"reference"`              // Human-readable reference or description
+	Status      JobStatus  `json:"status"`                 // Current status of the job
+	StartedAt   time.Time  `json:"started_at"`             // When the job was created
+	CompletedAt *time.Time `json:"completed_at,omitempty"` // When the job finished (if completed)
+	Error       string     `json:"error,omitempty"`        // Error message if job failed
+	Result      any        `json:"result"`                 // Result data from the job (if any)
 }
 
-// Tracker manages jobs
+// Tracker manages jobs throughout their lifecycle.
+// It provides thread-safe access to job information and handles job cleanup.
 type Tracker struct {
-	jobs  map[string]*Job
-	mutex sync.RWMutex
+	jobs  map[string]*Job // Map of job ID to job information
+	mutex sync.RWMutex    // Mutex to protect concurrent access
 }
 
-// NewTracker creates a new job tracker
+// NewTracker creates a new job tracker.
+// It initializes the tracker and starts the background cleanup process.
 func NewTracker() *Tracker {
 	tracker := &Tracker{
 		jobs: make(map[string]*Job),
@@ -48,7 +62,8 @@ func NewTracker() *Tracker {
 	return tracker
 }
 
-// startCleanup starts a background goroutine that cleans up old jobs
+// startCleanup starts a background goroutine that cleans up old jobs.
+// It runs periodically to remove completed jobs that are older than a defined threshold.
 func (t *Tracker) startCleanup() {
 	for {
 		time.Sleep(5 * time.Minute)
@@ -56,7 +71,8 @@ func (t *Tracker) startCleanup() {
 	}
 }
 
-// CreateJob creates a new job
+// CreateJob creates a new job with the specified type and reference.
+// It returns the generated job ID that can be used to check status later.
 func (t *Tracker) CreateJob(jobType, reference string) string {
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
@@ -72,7 +88,8 @@ func (t *Tracker) CreateJob(jobType, reference string) string {
 	return jobID
 }
 
-// GetJob returns a job by ID
+// GetJob returns a job by ID.
+// It returns the job object and a boolean indicating if the job exists.
 func (t *Tracker) GetJob(jobID string) (*Job, bool) {
 	t.mutex.RLock()
 	defer t.mutex.RUnlock()
@@ -81,7 +98,8 @@ func (t *Tracker) GetJob(jobID string) (*Job, bool) {
 	return job, exists
 }
 
-// UpdateJob updates a job's status
+// UpdateJob updates a job's status, error message, and result.
+// It returns true if the job was found and updated, false if the job doesn't exist.
 func (t *Tracker) UpdateJob(jobID string, status JobStatus, err error, result any) bool {
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
@@ -107,7 +125,8 @@ func (t *Tracker) UpdateJob(jobID string, status JobStatus, err error, result an
 	return true
 }
 
-// CleanupOldJobs removes jobs older than the specified duration
+// CleanupOldJobs removes jobs older than the specified duration.
+// It only removes jobs that have been completed or failed.
 func (t *Tracker) CleanupOldJobs(olderThan time.Duration) {
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
@@ -127,5 +146,6 @@ func (t *Tracker) CleanupOldJobs(olderThan time.Duration) {
 	}
 }
 
-// GlobalTracker is a global instance that can be used across the application
+// GlobalTracker is a global instance that can be used across the application.
+// It provides a convenient shared job tracker accessible to all components.
 var GlobalTracker = NewTracker()

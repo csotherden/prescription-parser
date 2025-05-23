@@ -12,6 +12,17 @@ import (
 	"go.uber.org/zap"
 )
 
+// GetSamples retrieves prescription samples that are most similar to the provided embedding vector.
+// It uses pgvector's similarity search to find the closest matches in the embedding space.
+// The method returns up to 3 most similar samples, ordered by vector similarity.
+//
+// Parameters:
+//   - ctx: Context for the database operation
+//   - embedding: Vector embedding to use for similarity search
+//
+// Returns:
+//   - A slice of SamplePrescription that are most similar to the embedding
+//   - An error if the database operation fails
 func (d *PgEntDatastore) GetSamples(ctx context.Context, embedding []float32) ([]models.SamplePrescription, error) {
 	var samples []models.SamplePrescription
 

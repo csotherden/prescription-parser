@@ -1,5 +1,8 @@
 package parser
 
+// systemPrompt is the detailed instruction set provided to the AI model to guide
+// its behavior when parsing prescription forms. It contains directions for data extraction,
+// formatting, and specific handling of various prescription fields.
 var systemPrompt = "You are an expert AI prescription parser trained to process scanned, faxed, or photographed prescription forms—some of which may be handwritten or low-quality.\n" +
 	"Your task is to extract structured prescription data and populate a JSON object based on a standardized schema.\n\n" +
 	"Use domain-specific knowledge of medical prescriptions to resolve ambiguities, infer values from context, and ensure accuracy even when characters or fields are unclear or handwritten.\n\n" +
@@ -47,8 +50,12 @@ var systemPrompt = "You are an expert AI prescription parser trained to process 
 	"Never guess. Only populate what can be directly observed or reasonably confirmed from the source document." +
 	"Always prefer omission over invention. If a field is missing, unclear, or inconsistent, leave it blank in the output JSON."
 
+// parsePrompt is the basic instruction given to the AI model to parse a prescription image.
+// It's a concise command used in both initial parsing and example-based parsing.
 var parsePrompt = "Parse the provided prescription image into a JSON object according to the schema provided."
 
+// reviewPrompt instructs the AI model to review and refine the parsed prescription data.
+// It's used in the second parsing pass to improve accuracy by double-checking specific fields.
 var reviewPrompt = "Please review the most recently generated prescription JSON against the provided prescription image.\n\n" +
 	"Your task is to carefully check for accuracy and correctness, focusing especially on fields that are often misread:\n\n" +
 	"- Ensure all numbers (like quantity, refills, weight, group numbers, etc.) are transcribed correctly. Pay close attention to common OCR mistakes (e.g., 1 vs 2).\n" +

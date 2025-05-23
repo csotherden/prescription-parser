@@ -4,6 +4,9 @@ import (
 	"google.golang.org/genai"
 )
 
+// geminiSchema defines the structure for prescription data extraction using structured output.
+// It describes the expected JSON format for the prescription data with detailed field descriptions
+// to help the model correctly parse and structure the prescription information.
 var geminiSchema = genai.Schema{
 	Type:        "OBJECT",
 	Description: "Prescription form data structure",

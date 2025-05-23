@@ -18,20 +18,27 @@ import (
 	"go.uber.org/zap"
 )
 
+// openAIEmbedding represents the structure of an embedding response from the OpenAI API.
+// It contains the vector representation of a text input.
+// We're using this to have a consistent float32 slice across all parsers.
 type openAIEmbedding struct {
 	Object    string    `json:"object"`
 	Index     int       `json:"index"`
 	Embedding []float32 `json:"embedding"`
 }
 
-// OpenAIParser implements the Parser interface using OpenAI services
+// OpenAIParser implements the Parser interface using OpenAI services.
+// It uses OpenAI's vision and embedding capabilities to process prescription images
+// and extract structured data from them.
 type OpenAIParser struct {
 	ds     datastore.Datastore
 	logger *zap.Logger
 	client openai.Client
 }
 
-// NewOpenAIParser creates a new OpenAI-based parser
+// NewOpenAIParser creates a new OpenAI-based parser.
+// It initializes a connection to the OpenAI API with the provided API key
+// and returns a parser instance ready for processing prescription images.
 func NewOpenAIParser(cfg config.Config, ds datastore.Datastore, logger *zap.Logger) (*OpenAIParser, error) {
 	client := openai.NewClient(
 		option.WithAPIKey(cfg.OpenAIAPIKey),
@@ -44,7 +51,9 @@ func NewOpenAIParser(cfg config.Config, ds datastore.Datastore, logger *zap.Logg
 	}, nil
 }
 
-// ParseImage handles parsing a prescription image using OpenAI vision API
+// ParseImage handles parsing a prescription image using OpenAI vision API.
+// It creates an asynchronous job to process the image and returns the job ID.
+// The actual processing is done in a separate goroutine.
 func (p *OpenAIParser) ParseImage(ctx context.Context, fileName string, file io.Reader) (string, error) {
 	// Create a job for asynchronous processing
 	jobID := jobs.GlobalTracker.CreateJob(
@@ -59,7 +68,8 @@ func (p *OpenAIParser) ParseImage(ctx context.Context, fileName string, file io.
 	return jobID, nil
 }
 
-// DeleteImage removes an image from the OpenAI API
+// deleteImage removes an image from the OpenAI API.
+// It's used to clean up resources after processing is complete.
 func (p *OpenAIParser) deleteImage(ctx context.Context, imageID string) error {
 	_, err := p.client.Files.Delete(ctx, imageID)
 	if err != nil {
@@ -68,7 +78,10 @@ func (p *OpenAIParser) deleteImage(ctx context.Context, imageID string) error {
 	return nil
 }
 
-// parseImageProcess processes the image asynchronously
+// parseImageProcess processes the image asynchronously.
+// It validates the file type, uploads it to OpenAI, performs parsing passes,
+// and updates the job status throughout the process. It also cleans up
+// the uploaded files when done.
 func (p *OpenAIParser) parseImageProcess(ctx context.Context, jobID, fileName string, file io.Reader) {
 	fileExt := strings.ToLower(filepath.Ext(fileName))
 	var contentType string
@@ -145,7 +158,9 @@ func (p *OpenAIParser) parseImageProcess(ctx context.Context, jobID, fileName st
 	jobs.GlobalTracker.UpdateJob(jobID, jobs.JobStatusComplete, nil, rx)
 }
 
-// firstParsingPass performs the initial parsing of the prescription
+// firstParsingPass performs the initial parsing of the prescription.
+// It sends the prescription image to OpenAI API with system and user prompts
+// to extract structured data from the image.
 func (p *OpenAIParser) firstParsingPass(ctx context.Context, fileID string, fileName string) (models.Prescription, error) {
 	messages := []responses.ResponseInputItemUnionParam{
 		responses.ResponseInputItemParamOfMessage(
@@ -206,7 +221,9 @@ func (p *OpenAIParser) firstParsingPass(ctx context.Context, fileID string, file
 	return rx, nil
 }
 
-// secondParsingPass performs a review with example context
+// secondParsingPass performs a review with example context.
+// It uses similar prescription samples to refine the initial parsing results,
+// potentially improving accuracy by learning from precedents.
 func (p *OpenAIParser) secondParsingPass(ctx context.Context, fileID string, samples []models.SamplePrescription, firstPassRx models.Prescription) (models.Prescription, error) {
 	messages := []responses.ResponseInputItemUnionParam{
 		responses.ResponseInputItemParamOfMessage(
@@ -329,7 +346,9 @@ func (p *OpenAIParser) secondParsingPass(ctx context.Context, fileID string, sam
 	return secondPassRx, nil
 }
 
-// GetEmbedding generates embeddings for a prescription using OpenAI
+// GetEmbedding generates embeddings for a prescription using OpenAI.
+// It converts the prescription to JSON and sends it to the OpenAI API to generate
+// a vector representation for similarity search.
 func (p *OpenAIParser) GetEmbedding(ctx context.Context, prescription models.Prescription) ([]float32, error) {
 	jsonBytes, err := json.Marshal(prescription)
 	if err != nil {
@@ -358,7 +377,9 @@ func (p *OpenAIParser) GetEmbedding(ctx context.Context, prescription models.Pre
 	return emb.Embedding, nil
 }
 
-// UploadImage uploads an image to the OpenAI API
+// UploadImage uploads an image to the OpenAI API.
+// It validates the file type, uploads the file to OpenAI, and returns an ID
+// that can be used to reference the image in subsequent API calls.
 func (p *OpenAIParser) UploadImage(ctx context.Context, fileName string, file io.Reader) (string, error) {
 	fileExt := strings.ToLower(filepath.Ext(fileName))
 	var contentType string

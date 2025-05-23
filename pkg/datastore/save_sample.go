@@ -9,6 +9,18 @@ import (
 	"go.uber.org/zap"
 )
 
+// SaveSamplePrescription stores a prescription and its vector embedding in the database.
+// It creates both the prescription record and its associated embedding in a single transaction.
+//
+// Parameters:
+//   - ctx: Context for the database operation
+//   - mimeType: MIME type of the prescription image
+//   - imageID: ID of the image file associated with this prescription
+//   - prescription: Prescription data to store
+//   - embedding: Vector embedding representing the prescription content for similarity search
+//
+// Returns:
+//   - An error if the database operation fails, nil on success
 func (d *PgEntDatastore) SaveSamplePrescription(ctx context.Context, mimeType, imageID string, prescription models.Prescription, embedding []float32) error {
 	tx, err := d.dbClient.Tx(ctx)
 	if err != nil {

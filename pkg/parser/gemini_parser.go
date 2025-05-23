@@ -16,14 +16,18 @@ import (
 	"google.golang.org/genai"
 )
 
-// GeminiParser implements the Parser interface using Google Gemini services
+// GeminiParser implements the Parser interface using Google Gemini services.
+// It leverages Gemini's multimodal capabilities to process prescription images
+// and extract structured data from them.
 type GeminiParser struct {
 	ds     datastore.Datastore
 	logger *zap.Logger
 	client *genai.Client
 }
 
-// NewGeminiParser creates a new Gemini-based parser
+// NewGeminiParser creates a new Gemini-based parser.
+// It initializes a client for the Gemini API with the provided API key
+// and returns a parser instance ready for processing prescription images.
 func NewGeminiParser(cfg config.Config, ds datastore.Datastore, logger *zap.Logger) (*GeminiParser, error) {
 	client, err := genai.NewClient(context.Background(), &genai.ClientConfig{
 		APIKey:  cfg.GeminiAPIKey,
@@ -40,7 +44,9 @@ func NewGeminiParser(cfg config.Config, ds datastore.Datastore, logger *zap.Logg
 	}, nil
 }
 
-// ParseImage handles parsing a prescription image using Gemini multimodal API
+// ParseImage handles parsing a prescription image using Gemini multimodal API.
+// It creates an asynchronous job to process the image and returns the job ID.
+// The actual processing is done in a separate goroutine.
 func (p *GeminiParser) ParseImage(ctx context.Context, fileName string, file io.Reader) (string, error) {
 	// Create a job for asynchronous processing
 	jobID := jobs.GlobalTracker.CreateJob(
@@ -55,7 +61,9 @@ func (p *GeminiParser) ParseImage(ctx context.Context, fileName string, file io.
 	return jobID, nil
 }
 
-// parseImageProcess processes the image asynchronously
+// parseImageProcess processes the image asynchronously.
+// It reads the file contents, validates the file type, performs parsing passes,
+// and updates the job status throughout the process.
 func (p *GeminiParser) parseImageProcess(ctx context.Context, jobID, fileName string, file io.Reader) {
 	fileExt := strings.ToLower(filepath.Ext(fileName))
 	var contentType string
@@ -119,7 +127,9 @@ func (p *GeminiParser) parseImageProcess(ctx context.Context, jobID, fileName st
 	jobs.GlobalTracker.UpdateJob(jobID, jobs.JobStatusComplete, nil, rx)
 }
 
-// firstParsingPass performs the initial parsing of the prescription
+// firstParsingPass performs the initial parsing of the prescription.
+// It sends the prescription image to Gemini API with system and user prompts
+// to extract structured data from the image.
 func (p *GeminiParser) firstParsingPass(ctx context.Context, contentType string, fileBytes []byte) (models.Prescription, error) {
 	config := &genai.GenerateContentConfig{
 		SystemInstruction: genai.NewContentFromText(systemPrompt, genai.RoleUser),
@@ -160,7 +170,9 @@ func (p *GeminiParser) firstParsingPass(ctx context.Context, contentType string,
 	return rx, nil
 }
 
-// secondParsingPass performs a review with example context
+// secondParsingPass performs a review with example context.
+// It uses similar prescription samples to refine the initial parsing results,
+// potentially improving accuracy by learning from precedents.
 func (p *GeminiParser) secondParsingPass(ctx context.Context, contentType string, fileBytes []byte, samples []models.SamplePrescription, firstPassRx models.Prescription) (models.Prescription, error) {
 	history := []*genai.Content{}
 
@@ -228,7 +240,9 @@ func (p *GeminiParser) secondParsingPass(ctx context.Context, contentType string
 	return secondPassRx, nil
 }
 
-// GetEmbedding generates embeddings for a prescription using Gemini embeddings API
+// GetEmbedding generates embeddings for a prescription using Gemini embeddings API.
+// It converts the prescription to JSON and sends it to the Gemini API to generate
+// a vector representation for similarity search.
 func (p *GeminiParser) GetEmbedding(ctx context.Context, prescription models.Prescription) ([]float32, error) {
 	jsonBytes, err := json.Marshal(prescription)
 	if err != nil {
@@ -254,7 +268,9 @@ func (p *GeminiParser) GetEmbedding(ctx context.Context, prescription models.Pre
 	return resp.Embeddings[0].Values, nil
 }
 
-// UploadImage uploads an image to the Gemini API
+// UploadImage uploads an image using the Gemini Files API.
+// It validates the file type, uploads the file to Gemini, and returns a URI
+// that can be used to reference the image in subsequent API calls.
 func (p *GeminiParser) UploadImage(ctx context.Context, fileName string, file io.Reader) (string, error) {
 	fileExt := strings.ToLower(filepath.Ext(fileName))
 	var contentType string
