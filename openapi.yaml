@@ -1,0 +1,323 @@
+openapi: 3.0.0
+info:
+  title: Prescription Parser API
+  description: API for parsing prescription images into structured JSON data
+  version: 1.0.0
+servers:
+  - url: /api
+    description: Base API path
+paths:
+  /parser/prescription:
+    post:
+      summary: Parse a prescription image
+      description: Extracts structured data from a prescription image PDF
+      operationId: parsePrescription
+      tags:
+        - Parser
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: PDF file containing the prescription image
+              required:
+                - image
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /parser/prescription/sample:
+    post:
+      summary: Save a sample prescription
+      description: Stores a validated prescription image and its corresponding JSON for training purposes
+      operationId: saveSamplePrescription
+      tags:
+        - Parser
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: PDF file containing the prescription image
+                json:
+                  type: string
+                  description: Validated prescription JSON data
+              required:
+                - image
+                - json
+      responses:
+        '204':
+          description: Sample prescription saved successfully
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /parser/prescription/{id}:
+    get:
+      summary: Get job status
+      description: Retrieves the status of a background prescription parsing job
+      operationId: getJobStatus
+      tags:
+        - Parser
+      parameters:
+        - name: id
+          in: path
+          description: Job ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '404':
+          description: Job not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+      required:
+        - error
+    Job:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique job identifier
+        type:
+          type: string
+          description: Type of job being processed
+          example: parse_prescription
+        reference:
+          type: string
+          description: Human-readable reference for the job
+          example: 'Processing image: humira.pdf'
+        status:
+          type: string
+          enum: [pending, processing, complete, failed]
+          description: Current status of the job
+        started_at:
+          type: string
+          format: date-time
+          description: Time when the job was started
+        completed_at:
+          type: string
+          format: date-time
+          description: Time when the job was completed
+          nullable: true
+        error:
+          type: string
+          description: Error message if the job failed
+          nullable: true
+        result:
+          type: object
+          description: Result data from the completed job
+          nullable: true
+      required:
+        - id
+        - type
+        - reference
+        - status
+        - started_at
+    Prescription:
+      type: object
+      properties:
+        date_written:
+          type: string
+          description: Date the prescription was written (YYYY-MM-DD)
+        date_needed:
+          type: string
+          description: Date by which the medication is needed (YYYY-MM-DD)
+        patient:
+          $ref: '#/components/schemas/Patient'
+          description: Demographic and insurance details of the patient
+        prescriber:
+          $ref: '#/components/schemas/Prescriber'
+          description: Information about the prescribing healthcare provider
+        diagnosis:
+          $ref: '#/components/schemas/PatientDiagnosis'
+          description: Clinical diagnosis details associated with the prescription
+        clinical_info:
+          type: array
+          items:
+            type: string
+          description: Additional clinical notes, such as lab values, genetic markers, or BSA
+        medications:
+          type: array
+          items:
+            $ref: '#/components/schemas/Medication'
+          description: List of medications prescribed on this form
+        therapy_status:
+          type: string
+          description: Indicates whether the therapy is new, restarted, or ongoing
+        failed_therapies:
+          type: array
+          items:
+            $ref: '#/components/schemas/TherapyHistory'
+          description: List of prior therapies the patient tried and discontinued
+        delivery:
+          $ref: '#/components/schemas/DeliveryInfo'
+          description: Shipping instructions for the medication
+        prescriber_signature:
+          $ref: '#/components/schemas/SignatureInfo'
+          description: Signature and DAW code authorization from the prescriber
+        attachments:
+          $ref: '#/components/schemas/AttachmentDetails'
+          description: Boolean indicators for supplemental documents provided with the form
+      required:
+        - date_written
+        - date_needed
+        - diagnosis
+        - medications
+        - therapy_status
+        - prescriber_signature
+    Patient:
+      type: object
+      description: Patient demographic and insurance information
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        dob:
+          type: string
+          format: date
+        gender:
+          type: string
+        address:
+          type: object
+        phone:
+          type: string
+        email:
+          type: string
+        insurance:
+          type: object
+    Prescriber:
+      type: object
+      description: Prescriber information
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        npi:
+          type: string
+        specialty:
+          type: string
+        address:
+          type: object
+        phone:
+          type: string
+        fax:
+          type: string
+    PatientDiagnosis:
+      type: object
+      description: Diagnosis information
+      properties:
+        icd10_codes:
+          type: array
+          items:
+            type: string
+        description:
+          type: string
+    Medication:
+      type: object
+      description: Medication details
+      properties:
+        name:
+          type: string
+        strength:
+          type: string
+        directions:
+          type: string
+        quantity:
+          type: string
+        refills:
+          type: integer
+    TherapyHistory:
+      type: object
+      description: Prior therapy information
+      properties:
+        medication:
+          type: string
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        reason_discontinued:
+          type: string
+    DeliveryInfo:
+      type: object
+      description: Delivery instructions
+      properties:
+        method:
+          type: string
+        address:
+          type: object
+        notes:
+          type: string
+    SignatureInfo:
+      type: object
+      description: Prescriber signature information
+      properties:
+        substitution_allowed:
+          type: boolean
+        date_signed:
+          type: string
+          format: date
+    AttachmentDetails:
+      type: object
+      description: Information about attached documents
+      properties:
+        lab_results:
+          type: boolean
+        insurance_card:
+          type: boolean
+        prior_authorization:
+          type: boolean 
