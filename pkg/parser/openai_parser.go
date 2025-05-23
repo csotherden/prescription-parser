@@ -26,13 +26,13 @@ type openAIEmbedding struct {
 
 // OpenAIParser implements the Parser interface using OpenAI services
 type OpenAIParser struct {
-	ds     *datastore.Datastore
+	ds     datastore.Datastore
 	logger *zap.Logger
 	client openai.Client
 }
 
 // NewOpenAIParser creates a new OpenAI-based parser
-func NewOpenAIParser(cfg config.Config, ds *datastore.Datastore, logger *zap.Logger) (*OpenAIParser, error) {
+func NewOpenAIParser(cfg config.Config, ds datastore.Datastore, logger *zap.Logger) (*OpenAIParser, error) {
 	client := openai.NewClient(
 		option.WithAPIKey(cfg.OpenAIAPIKey),
 	)

@@ -40,7 +40,7 @@ func main() {
 	cfg := config.NewConfig()
 
 	// Initialize datastore
-	ds, err := datastore.NewDatastore(cfg, logger)
+	ds, err := datastore.NewPgEntDatastore(cfg, logger)
 	if err != nil {
 		logger.Fatal("Failed to initialize datastore", zap.Error(err))
 	}

@@ -24,7 +24,7 @@ type Parser interface {
 }
 
 // NewParser creates a new instance of a Parser implementation based on config
-func NewParser(cfg config.Config, ds *datastore.Datastore, logger *zap.Logger) (Parser, error) {
+func NewParser(cfg config.Config, ds datastore.Datastore, logger *zap.Logger) (Parser, error) {
 	logger.Info("initializing parser", zap.String("parser_backend", cfg.ParserBackend))
 
 	switch cfg.ParserBackend {

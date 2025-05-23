@@ -10,13 +10,13 @@ import (
 
 // Handler handles parser-related API requests
 type Handler struct {
-	ds     *datastore.Datastore
+	ds     datastore.Datastore
 	logger *zap.Logger
 	parser parserPkg.Parser
 }
 
 // NewHandler creates a new parser handler instance
-func NewHandler(parser parserPkg.Parser, ds *datastore.Datastore, logger *zap.Logger) *Handler {
+func NewHandler(parser parserPkg.Parser, ds datastore.Datastore, logger *zap.Logger) *Handler {
 	return &Handler{
 		ds:     ds,
 		logger: logger,

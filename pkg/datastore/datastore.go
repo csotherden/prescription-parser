@@ -2,7 +2,6 @@ package datastore
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -15,28 +14,23 @@ import (
 	"go.uber.org/zap"
 )
 
-type Datastore struct {
+type Datastore interface {
+	GetSamples(ctx context.Context, embedding []float32) ([]models.SamplePrescription, error)
+	SaveSamplePrescription(ctx context.Context, mimeType, imageID string, prescription models.Prescription, embedding []float32) error
+}
+
+type PgEntDatastore struct {
 	dbClient *ent.Client
 	logger   *zap.Logger
 }
 
-// SaveSample saves a sample prescription with its validated JSON
-func (d *Datastore) SaveSample(ctx context.Context, fileID, contentType, jsonContent string, embedding []float32) error {
-	var prescription models.Prescription
-	if err := json.Unmarshal([]byte(jsonContent), &prescription); err != nil {
-		return fmt.Errorf("failed to unmarshal prescription JSON: %w", err)
-	}
-
-	return d.SaveSamplePrescription(ctx, contentType, fileID, prescription, embedding)
-}
-
-func NewDatastore(cfg config.Config, logger *zap.Logger) (*Datastore, error) {
+func NewPgEntDatastore(cfg config.Config, logger *zap.Logger) (Datastore, error) {
 	dbClient, err := newEntClient(cfg)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to initialize datastore: %w", err)
 	}
 
-	return &Datastore{
+	return &PgEntDatastore{
 		dbClient: dbClient,
 		logger:   logger,
 	}, nil

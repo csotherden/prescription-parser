@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func (d *Datastore) SaveSamplePrescription(ctx context.Context, mimeType, imageID string, prescription models.Prescription, embedding []float32) error {
+func (d *PgEntDatastore) SaveSamplePrescription(ctx context.Context, mimeType, imageID string, prescription models.Prescription, embedding []float32) error {
 	tx, err := d.dbClient.Tx(ctx)
 	if err != nil {
 		d.logger.Error("failed to create transaction", zap.Error(err))

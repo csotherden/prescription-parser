@@ -19,11 +19,11 @@ type Server struct {
 	logger *zap.Logger
 	router *mux.Router
 	server *http.Server
-	ds     *datastore.Datastore
+	ds     datastore.Datastore
 	parser parserPkg.Parser
 }
 
-func NewServer(cfg config.Config, ds *datastore.Datastore, parser parserPkg.Parser, logger *zap.Logger) (*Server, error) {
+func NewServer(cfg config.Config, ds datastore.Datastore, parser parserPkg.Parser, logger *zap.Logger) (*Server, error) {
 	s := &Server{
 		config: cfg,
 		logger: logger,

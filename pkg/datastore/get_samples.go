@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
 	"github.com/pgvector/pgvector-go"
 
 	"entgo.io/ent/dialect/sql"
@@ -11,7 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func (d *Datastore) GetSamples(ctx context.Context, embedding []float32) ([]models.SamplePrescription, error) {
+func (d *PgEntDatastore) GetSamples(ctx context.Context, embedding []float32) ([]models.SamplePrescription, error) {
 	var samples []models.SamplePrescription
 
 	tx, err := d.dbClient.BeginTx(ctx, nil)

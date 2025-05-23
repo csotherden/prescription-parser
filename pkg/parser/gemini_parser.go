@@ -18,13 +18,13 @@ import (
 
 // GeminiParser implements the Parser interface using Google Gemini services
 type GeminiParser struct {
-	ds     *datastore.Datastore
+	ds     datastore.Datastore
 	logger *zap.Logger
 	client *genai.Client
 }
 
 // NewGeminiParser creates a new Gemini-based parser
-func NewGeminiParser(cfg config.Config, ds *datastore.Datastore, logger *zap.Logger) (*GeminiParser, error) {
+func NewGeminiParser(cfg config.Config, ds datastore.Datastore, logger *zap.Logger) (*GeminiParser, error) {
 	client, err := genai.NewClient(context.Background(), &genai.ClientConfig{
 		APIKey:  cfg.GeminiAPIKey,
 		Backend: genai.BackendGeminiAPI,
