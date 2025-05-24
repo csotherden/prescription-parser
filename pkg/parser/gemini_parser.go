@@ -131,7 +131,7 @@ func (p *GeminiParser) parseImageProcess(ctx context.Context, jobID, fileName st
 // It sends the prescription image to Gemini API with system and user prompts
 // to extract structured data from the image.
 func (p *GeminiParser) firstParsingPass(ctx context.Context, contentType string, fileBytes []byte) (models.Prescription, error) {
-	config := &genai.GenerateContentConfig{
+	cfg := &genai.GenerateContentConfig{
 		SystemInstruction: genai.NewContentFromText(systemPrompt, genai.RoleUser),
 		ResponseMIMEType:  "application/json",
 		ResponseSchema:    &geminiSchema,
@@ -155,7 +155,7 @@ func (p *GeminiParser) firstParsingPass(ctx context.Context, contentType string,
 		ctx,
 		"gemini-2.5-flash-preview-05-20",
 		contents,
-		config,
+		cfg,
 	)
 	if err != nil {
 		return models.Prescription{}, fmt.Errorf("failed to process image: %w", err)
@@ -261,7 +261,7 @@ func (p *GeminiParser) GetEmbedding(ctx context.Context, prescription models.Pre
 			OutputDimensionality: &embeddingDimensionality,
 		},
 	)
-	if err != nil {
+	if err != nil || len(resp.Embeddings) == 0 {
 		return nil, fmt.Errorf("failed to generate prescription embedding: %w", err)
 	}
 

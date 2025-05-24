@@ -116,7 +116,7 @@ func (p *OpenAIParser) parseImageProcess(ctx context.Context, jobID, fileName st
 	}()
 
 	// Initial parsing pass
-	rx, err := p.firstParsingPass(ctx, storedFile.ID, fileName)
+	rx, err := p.firstParsingPass(ctx, storedFile.ID)
 	if err != nil {
 		p.logger.Error("failed in first parsing pass", zap.String("job_id", jobID), zap.Error(err))
 		jobs.GlobalTracker.UpdateJob(jobID, jobs.JobStatusFailed, fmt.Errorf("failed in first parsing pass: %w", err), nil)
@@ -161,7 +161,7 @@ func (p *OpenAIParser) parseImageProcess(ctx context.Context, jobID, fileName st
 // firstParsingPass performs the initial parsing of the prescription.
 // It sends the prescription image to OpenAI API with system and user prompts
 // to extract structured data from the image.
-func (p *OpenAIParser) firstParsingPass(ctx context.Context, fileID string, fileName string) (models.Prescription, error) {
+func (p *OpenAIParser) firstParsingPass(ctx context.Context, fileID string) (models.Prescription, error) {
 	messages := []responses.ResponseInputItemUnionParam{
 		responses.ResponseInputItemParamOfMessage(
 			systemPrompt,
@@ -363,7 +363,7 @@ func (p *OpenAIParser) GetEmbedding(ctx context.Context, prescription models.Pre
 		Dimensions:     openai.Int(1536),
 		EncodingFormat: "float",
 	})
-	if err != nil {
+	if err != nil || len(resp.Data) == 0 {
 		return nil, fmt.Errorf("failed to generate prescription embedding: %w", err)
 	}
 
