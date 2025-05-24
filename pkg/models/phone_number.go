@@ -1,7 +1,7 @@
 package models
 
-type PhoneNumbers struct {
-	Daytime string `json:"daytime" jsonschema_description:"Primary daytime contact number for the patient"`
-	Evening string `json:"evening" jsonschema_description:"Evening contact number for the patient"`
-	Cell    string `json:"cell" jsonschema_description:"Mobile phone number for the patient"`
+type PhoneNumber struct {
+	Label     string `json:"label" jsonschema_description:"Label used to identify the phone number e.g. Home, Mobile, Work"`
+	Number    string `json:"number" jsonschema_description:"The numeric phone number without any spaces or formating characters"`
+	Extension string `json:"extension" jsonschema_description:"The extension to dial (if any)"`
 }

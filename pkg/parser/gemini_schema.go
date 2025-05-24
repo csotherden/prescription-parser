@@ -93,21 +93,25 @@ var geminiSchema = genai.Schema{
 						},
 					},
 				},
-				"phones": {
-					Type:        "OBJECT",
+				"phone_numbers": {
+					Type:        "ARRAY",
 					Description: "Patient's contact phone numbers",
-					Properties: map[string]*genai.Schema{
-						"daytime": {
-							Type:        "STRING",
-							Description: "Primary daytime contact number for the patient",
-						},
-						"evening": {
-							Type:        "STRING",
-							Description: "Evening contact number for the patient",
-						},
-						"cell": {
-							Type:        "STRING",
-							Description: "Mobile phone number for the patient",
+					Items: &genai.Schema{
+						Type:        "OBJECT",
+						Description: "Phone number details",
+						Properties: map[string]*genai.Schema{
+							"label": {
+								Type:        "STRING",
+								Description: "Label used to identify the phone number e.g. Home, Mobile, Work",
+							},
+							"number": {
+								Type:        "STRING",
+								Description: "The numeric phone number without any spaces or formating characters",
+							},
+							"extension": {
+								Type:        "STRING",
+								Description: "The extension to dial (if any)",
+							},
 						},
 					},
 				},
