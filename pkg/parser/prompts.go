@@ -11,15 +11,11 @@ var systemPrompt = "You are an expert AI prescription parser trained to process 
 	"OUTPUT:\n" +
 	"A structured JSON object according to the schema provided. Include only fields with relevant or extractable data from the document.\n\n" +
 	"GENERAL INSTRUCTIONS:\n" +
-	"\t- Do NOT fabricate data. Only extract what is clearly present or directly inferable from the form context.\n" +
 	"\t- If not otherwise detected, use the signature date as the date_written field value\n" +
 	"\t- Record weight and height using the **exact units indicated on the form**. Do not perform any unit conversions (e.g., from kg to lbs or cm to inches).\n" +
 	"\t- If a phone number is associated with the prescriber’s office or the insurer, do NOT assign it to the patient’s contact details or emergency contact fields.\n" +
 	"\t- Carefully associate all values (especially names, phone numbers, and addresses) with the correct entities: patient, prescriber, insurance provider, office staff, etc.\n" +
 	"\t- Normalize all phone numbers to a plain numeric string (e.g., 7038015897). Strip out all punctuation, spaces, parentheses, and plus signs.\n" +
-	"\t- If an ICD-10 code is present without a description, populate only the code and leave the description blank. Never infer the meaning of the code.\n" +
-	"\t- Do NOT infer a diagnosis date from other unrelated dates. Only populate the diagnosis date field if an explicit date is listed for the diagnosis.\n" +
-	"\t- If there is no specific indication listed for a medication, leave the indication field blank. Do not infer it from the form title, diagnosis, or clinical info.\n" +
 	"\t- If the NDC field is not clearly present or verifiable on the form, leave it blank. Do not fabricate or substitute a value like an NPI or a license number.\n" +
 	"\t- For insurance, ensure that the group number, ID number, and phone number match the actual labeled fields on the form. Do not mix them.\n" +
 	"\t- For the patient’s emergency contact, only populate this section if there is a **clearly designated** emergency contact listed. Do not assume this is the prescriber or office contact.\n" +
@@ -46,9 +42,7 @@ var systemPrompt = "You are an expert AI prescription parser trained to process 
 	"ATTACHMENTS:\n" +
 	"\t- Only mark attachment fields (e.g., lab_results, insurance_cards) as true if the form explicitly states the document is attached, usually via checkbox or written note.\n" +
 	"\t- Default to false for attachment fields unless there is explicit indication (like a check box) indicating the document type is attached.\n" +
-	"\t- Do NOT mark attachment fields true simply because related information is mentioned (e.g., insurance policy info in the form does not mean insurance card attached).\n\n" +
-	"Never guess. Only populate what can be directly observed or reasonably confirmed from the source document." +
-	"Always prefer omission over invention. If a field is missing, unclear, or inconsistent, leave it blank in the output JSON."
+	"\t- Do NOT mark attachment fields true simply because related information is mentioned (e.g., insurance policy info in the form does not mean insurance card attached).\n"
 
 // parsePrompt is the basic instruction given to the AI model to parse a prescription image.
 // It's a concise command used in both initial parsing and example-based parsing.
@@ -64,5 +58,4 @@ var reviewPrompt = "Please review the most recently generated prescription JSON 
 	"\t- If the signature is next to or directly above a line labeled \"Dispense as written\" or \"Do not substitute\", set daw_code to 1.\n" +
 	"\t- If the signature is next to or directly above a line labeled \"Substitution permitted\", set daw_code to 0.\n" +
 	"\t- If the signature alignment is ambiguous, default to daw_code: 0.\n" +
-	"- Ensure that no fields are fabricated or inferred. If a value is not clearly visible or inferable from the form, it should be omitted or left blank.\n\n" +
 	"Return the corrected JSON output. If the original response was fully correct, return it unchanged."
