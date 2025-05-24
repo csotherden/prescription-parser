@@ -1,0 +1,123 @@
+{
+  "date_written": "2025-03-23",
+  "date_needed": "2025-03-26",
+  "patient": {
+    "first_name": "Tammy",
+    "middle_name": "Alice",
+    "last_name": "Lynch",
+    "dob": "1966-01-02",
+    "sex": "Female",
+    "weight": {
+      "unit": "kg",
+      "value": "96"
+    },
+    "height": {
+      "unit": "cm",
+      "value": "175"
+    },
+    "address": {
+      "street": "5044 Montana Lane",
+      "city": "Lincoln",
+      "state": "VA",
+      "zip": "20160"
+    },
+    "phone_numbers": [
+      {
+        "label": "Daytime",
+        "number": "7038015897",
+        "extension": ""
+      }
+    ],
+    "allergies": [
+      "Penicillin",
+      "Avocado"
+    ],
+    "emergency_contact": {
+      "name": "",
+      "relationship": "",
+      "phone": ""
+    },
+    "insurance": [
+      {
+        "type": "Primary",
+        "provider": "UnitedHealth Group",
+        "id_number": "129411982",
+        "group_number": "2553172",
+        "rx_bin": "",
+        "pcn": "",
+        "policyholder_name": "",
+        "policyholder_dob": "",
+        "phone_number": "8772805800"
+      }
+    ]
+  },
+  "prescriber": {
+    "name": "Evelyn Hamilton",
+    "specialty": "",
+    "npi": "1944304579",
+    "state_license": "4706306971",
+    "dea": "BH3296096",
+    "office": {
+      "name": "St John's Healthcare Services",
+      "address": {
+        "street": "102 Pepper Wood Street",
+        "city": "Round Hill",
+        "state": "VA",
+        "zip": "20141"
+      },
+      "phone": "8266851994",
+      "fax": "6863839940",
+      "contact_name": "Samuel Moore",
+      "contact_email": "samuel.moore@stjohnshealthcareservices.org"
+    }
+  },
+  "diagnosis": {
+    "date_of_diagnosis": "",
+    "primary_diagnosis": {
+      "description": "",
+      "icd10_code": "B50.9"
+    },
+    "additional_diagnoses": []
+  },
+  "clinical_info": [
+    "BSA: 1.7 m²",
+    "BRAF mutation, V600E: Negative",
+    "KRAS Wild Type: Negative",
+    "Kit (CD117): Negative",
+    "RET fusion: Negative",
+    "NTRK Gene Fusion: Negative",
+    "RET mutant: Negative"
+  ],
+  "medications": [
+    {
+      "drug_name": "Gleevec",
+      "ndc": "",
+      "form": "tablet",
+      "strength": "25 mg",
+      "sig": "25mg tab po qd",
+      "quantity": "30",
+      "refills": "1",
+      "start_date": "2025-03-26",
+      "duration": "",
+      "administration_notes": "Take one 25 mg tablet by mouth once daily",
+      "indication": ""
+    }
+  ],
+  "therapy_status": "new",
+  "failed_therapies": [],
+  "delivery": {
+    "destination": "Patient's Home",
+    "notes": ""
+  },
+  "prescriber_signature": {
+    "date": "2025-03-23",
+    "daw_code": "0"
+  },
+  "attachments": {
+    "insurance_cards": false,
+    "lab_results": false,
+    "pathology_reports": false,
+    "clinical_notes": false,
+    "other_documents": false
+  }
+}

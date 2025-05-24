@@ -1,6 +1,6 @@
 # Prescription Parser
 
-This project is a service for parsing prescription images into standardized JSON responses. It demonstrates AI use cases for healthcare applications using multimodal LLMs. It's meant to serve as a technical demonstration and is not HIPAA-compliant.
+This project is a service for parsing prescription images into standardized JSON responses. It demonstrates AI use cases for healthcare applications using multimodal LLMs. It's meant to serve as a technical demonstration and is not HIPAA-compliant out of the box (Gemini can be HIPAA-compliant with a BAA).
 
 When building real healthcare applications make sure to use HIPAA-compliant LLM models, cloud infrastructure providers, and instrumentation.
 
@@ -86,6 +86,9 @@ go run cmd/prescription-parser/main.go
 ```bash
 go run cmd/prescription-parser/main.go -env /path/to/.env
 ```
+
+### Sample Images
+The `samples` directory contains sample prescription images and their corresponding validated JSON representation.
 
 ## API Usage
 

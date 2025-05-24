@@ -1,0 +1,121 @@
+{
+  "date_written": "2025-05-07",
+  "date_needed": "2025-05-12",
+  "patient": {
+    "first_name": "Jeffery",
+    "middle_name": "G",
+    "last_name": "Waldron",
+    "dob": "1973-03-06",
+    "sex": "Male",
+    "weight": {
+      "unit": "lbs",
+      "value": "208"
+    },
+    "height": {
+      "unit": "",
+      "value": ""
+    },
+    "address": {
+      "street": "1972 James Avenue",
+      "city": "Syracuse",
+      "state": "NY",
+      "zip": "13221"
+    },
+    "phone_numbers": [
+      {
+        "label": "Mobile",
+        "number": "3159512781",
+        "extension": ""
+      },
+      {
+        "label": "Work",
+        "number": "3153737846",
+        "extension": ""
+      }
+    ],
+    "allergies": [
+      "Penicillin"
+    ],
+    "emergency_contact": {
+      "name": "",
+      "relationship": "",
+      "phone": ""
+    },
+    "insurance": [
+      {
+        "type": "Primary",
+        "provider": "Optum RX",
+        "id_number": "4609915101",
+        "group_number": "460011",
+        "rx_bin": "610011",
+        "pcn": "IRX",
+        "policyholder_name": "Jeffery Waldron",
+        "policyholder_dob": "1973-03-06",
+        "phone_number": "18007364299"
+      }
+    ]
+  },
+  "prescriber": {
+    "name": "Allison Sheilds",
+    "specialty": "Dermatology",
+    "npi": "4962830293",
+    "state_license": "0523130371",
+    "dea": "",
+    "office": {
+      "name": "James Martinez Family Health Center",
+      "address": {
+        "street": "3161 Buckhannan Avenue",
+        "city": "Liverpool",
+        "state": "NY",
+        "zip": "13088"
+      },
+      "phone": "5418753374",
+      "fax": "5413376466",
+      "contact_name": "Todd Evans",
+      "contact_email": ""
+    }
+  },
+  "diagnosis": {
+    "date_of_diagnosis": "2025-05-07",
+    "primary_diagnosis": {
+      "description": "Adolescent Hidradenitis Suppurativa",
+      "icd10_code": "L73.2"
+    },
+    "additional_diagnoses": null
+  },
+  "clinical_info": [
+    "TB Test Date: 2025-05-07, Result: Negative"
+  ],
+  "medications": [
+    {
+      "drug_name": "HUMIRA (adalimumab) Starter Pkg",
+      "ndc": "0074-0124-03",
+      "form": "Pen",
+      "strength": "80 mg/0.8 mL",
+      "sig": "Two 80 mg SQ inj. Day 1, one 80 mg SQ inj. Day 15",
+      "quantity": "3",
+      "refills": "0",
+      "start_date": "",
+      "duration": "30 Days",
+      "administration_notes": "Inject two 80 mg subcutaneously on Day 1, then inject one 80 mg subcutaneously on Day 15.",
+      "indication": "Hidradenitis Suppurativa"
+    }
+  ],
+  "therapy_status": "New",
+  "failed_therapies": null,
+  "delivery": {
+    "destination": "Patient's Home",
+    "notes": ""
+  },
+  "prescriber_signature": {
+    "date": "2025-05-07",
+    "daw_code": "0"
+  },
+  "attachments": {
+    "insurance_cards": false,
+    "lab_results": false,
+    "pathology_reports": false,
+    "clinical_notes": false,
+    "other_documents": false
+  }
+}

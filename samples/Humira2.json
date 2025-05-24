@@ -1,0 +1,114 @@
+{
+  "date_written": "2025-05-23",
+  "date_needed": "2025-05-30",
+  "patient": {
+    "first_name": "Cynthia",
+    "middle_name": "K",
+    "last_name": "Ratcliffe",
+    "dob": "1949-06-20",
+    "sex": "Female",
+    "weight": {
+      "unit": "lbs",
+      "value": "163"
+    },
+    "height": {
+      "unit": "",
+      "value": ""
+    },
+    "address": {
+      "street": "4238 Byrd Lane",
+      "city": "Kenner",
+      "state": "LA",
+      "zip": "70062"
+    },
+    "phone_numbers": [
+      {
+        "label": "Home",
+        "number": "5049574515",
+        "extension": ""
+      }
+    ],
+    "allergies": null,
+    "emergency_contact": {
+      "name": "",
+      "relationship": "",
+      "phone": ""
+    },
+    "insurance": [
+      {
+        "type": "Primary",
+        "provider": "Cigna",
+        "id_number": "1414662",
+        "group_number": "",
+        "rx_bin": "061740",
+        "pcn": "1245PAYR",
+        "policyholder_name": "Nathan Ratcliffe",
+        "policyholder_dob": "1947-02-06",
+        "phone_number": "18003251404"
+      }
+    ]
+  },
+  "prescriber": {
+    "name": "Tara Vrooman",
+    "specialty": "Dermatology",
+    "npi": "5002793961",
+    "state_license": "4282507774",
+    "dea": "",
+    "office": {
+      "name": "Brian Payne Family Healthcare",
+      "address": {
+        "street": "3302 Shadowmar Drive",
+        "city": "New Orleans",
+        "state": "LA",
+        "zip": "70118"
+      },
+      "phone": "5048624520",
+      "fax": "5044916046",
+      "contact_name": "Silas Beck",
+      "contact_email": ""
+    }
+  },
+  "diagnosis": {
+    "date_of_diagnosis": "2025-02-06",
+    "primary_diagnosis": {
+      "description": "Psoriatic Arthritis",
+      "icd10_code": "L40.53"
+    },
+    "additional_diagnoses": null
+  },
+  "clinical_info": [
+    "TB Test (Date): 2/6/2025, Negative"
+  ],
+  "medications": [
+    {
+      "drug_name": "HUMIRA (adalimumab)",
+      "ndc": "0074-0554-02",
+      "form": "Pen",
+      "strength": "40 mg/0.4 mL",
+      "sig": "One 40 mg SQ inj. QOW",
+      "quantity": "6",
+      "refills": "2",
+      "start_date": "",
+      "duration": "3 Months",
+      "administration_notes": "Take one 40 mg subcutaneous injection every other week.",
+      "indication": "Psoriatic Arthritis"
+    }
+  ],
+  "therapy_status": "Continuing",
+  "failed_therapies": null,
+  "delivery": {
+    "destination": "Patient's Home",
+    "notes": ""
+  },
+  "prescriber_signature": {
+    "date": "2025-05-23",
+    "daw_code": "1"
+  },
+  "attachments": {
+    "insurance_cards": false,
+    "lab_results": false,
+    "pathology_reports": false,
+    "clinical_notes": false,
+    "other_documents": false
+  }
+}
