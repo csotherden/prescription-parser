@@ -41,6 +41,47 @@ The prescription parsing process follows these steps:
 4. Second parsing pass (review) that includes sample prescriptions as context for improved accuracy
 5. Return the final parsed results
 
+## Architecture Diagram
+
+The following diagram illustrates the prescription processing flow, including sample processing and multi-pass parsing:
+
+```mermaid
+graph TD
+    subgraph "API Endpoints"
+        A[POST /api/parser/prescription] --> B[Create Parsing Job]
+        S[POST /api/parser/prescription/sample] --> T[Process Sample]
+    end
+    
+    subgraph "Prescription Parsing Flow"
+        B --> C[Validate Image]
+        C --> D[First Parsing Pass]
+        D --> E[Generate Vector Embedding]
+        E --> F[Query Similar Samples]
+        F --> G{Samples Found?}
+        G -->|Yes| H[Second Parsing Pass with Samples]
+        G -->|No| I[Return First Pass Results]
+        H --> J[Return Final Results]
+        I --> J
+    end
+    
+    subgraph "Sample Processing Flow"
+        T --> U[Upload Image]
+        T --> V[Validate JSON]
+        U --> W[Generate Vector Embedding]
+        V --> W
+        W --> X[Store in Vector Database]
+    end
+    
+    subgraph "External Components"
+        D <--> LLM[LLM Backend]
+        H <--> LLM
+        F <--> DB[Vector Database]
+        X --> DB
+    end
+    
+    J --> Result[Structured Prescription JSON]
+```
+
 ## Setup and Running
 
 ### Prerequisites
