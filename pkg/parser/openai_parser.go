@@ -266,7 +266,12 @@ func (p *OpenAIParser) secondParsingPass(ctx context.Context, fileID string, sam
 		messages = append(messages, sampleResponse)
 	}
 
-	imageMessage := responses.ResponseInputItemParamOfMessage(
+	firstPassResponseText, err := json.Marshal(firstPassRx)
+	if err != nil {
+		return firstPassRx, fmt.Errorf("failed to marshal first pass response: %w", err)
+	}
+
+	reviewMessage := responses.ResponseInputItemParamOfMessage(
 		responses.ResponseInputMessageContentListParam{
 			responses.ResponseInputContentUnionParam{
 				OfInputFile: &responses.ResponseInputFileParam{
@@ -276,7 +281,7 @@ func (p *OpenAIParser) secondParsingPass(ctx context.Context, fileID string, sam
 			},
 			responses.ResponseInputContentUnionParam{
 				OfInputText: &responses.ResponseInputTextParam{
-					Text: parsePrompt,
+					Text: fmt.Sprintf("%s\n\nHere is the FIRST-PASS JSON EXTRACTION for the attached image:\n\n```json\n%s\n```", reviewPrompt, string(firstPassResponseText)),
 					Type: "input_text",
 				},
 			},
@@ -284,34 +289,7 @@ func (p *OpenAIParser) secondParsingPass(ctx context.Context, fileID string, sam
 		"user",
 	)
 
-	messages = append(messages, imageMessage)
-
-	firstPassResponseText, err := json.Marshal(firstPassRx)
-	if err != nil {
-		return firstPassRx, fmt.Errorf("failed to marshal first pass response: %w", err)
-	}
-
-	firstPassResponse := responses.ResponseInputItemParamOfMessage(
-		responses.ResponseInputMessageContentListParam{
-			responses.ResponseInputContentUnionParam{
-				OfInputText: &responses.ResponseInputTextParam{
-					Text: string(firstPassResponseText),
-					Type: "output_text",
-				},
-			},
-		},
-		"assistant",
-	)
-
-	messages = append(messages, firstPassResponse)
-
-	messages = append(
-		messages,
-		responses.ResponseInputItemParamOfMessage(
-			reviewPrompt,
-			"user",
-		),
-	)
+	messages = append(messages, reviewMessage)
 
 	params := responses.ResponseNewParams{
 		Text: responses.ResponseTextConfigParam{

@@ -10,7 +10,6 @@ var systemPrompt = "You are an expert AI prescription parser trained to process 
 	"\t- You should produce the most accurate and complete representation of the provided prescription image.\n" +
 	"\t- Given that this is a healthcare context, accuracy is important but your job is to reduce manual data entry time so completeness is also a high priority.\n" +
 	"\t- A licensed human pharmacist will review your output for accuracy, so strike the appropriate balance so that they do not need to manually input data you omitted but also spend minimal time correcting your mistakes.\n" +
-	"\t- If there are  examples of other prescriptions (image + correct JSON) in the message history, use them to understand common patterns, expected data structure, and interpretation nuances.\n\n" +
 	"INPUT:\n" +
 	"A single-page or multi-page image or PDF file containing a prescription or specialty pharmacy order form.\n\n" +
 	"OUTPUT:\n" +
@@ -55,12 +54,23 @@ var parsePrompt = "Parse the provided prescription image into a JSON object acco
 
 // reviewPrompt instructs the AI model to review and refine the parsed prescription data.
 // It's used in the second parsing pass to improve accuracy by double-checking specific fields.
-var reviewPrompt = "Please review the most recently generated prescription JSON against the provided prescription image.\n\n" +
-	"Your task is to carefully check for accuracy and correctness, focusing especially on fields that are often misread:\n\n" +
-	"- Ensure all numbers (like quantity, refills, weight, group numbers, etc.) are transcribed correctly. Pay close attention to common OCR mistakes (e.g., 1 vs 2).\n" +
-	"- Verify that the drug_name field includes the correct prescribed medication(s) based on the checkboxes marked on the form. If a drug is marked or circled, it should be included.\n" +
-	"- Confirm that the daw_code is set correctly based on the label of the line where the prescriber's signature appears:\n" +
-	"\t- If the signature is next to or directly above a line labeled \"Dispense as written\" or \"Do not substitute\", set daw_code to 1.\n" +
-	"\t- If the signature is next to or directly above a line labeled \"Substitution permitted\", set daw_code to 0.\n" +
-	"\t- If the signature alignment is ambiguous, default to daw_code: 0.\n" +
-	"Return the corrected JSON output. If the original response was fully correct, return it unchanged."
+var reviewPrompt = "This is a REVIEW and REFINEMENT pass.\n" +
+	"You are working with the PRESCRIPTION IMAGE ATTACHED TO THIS MESSAGE.\n" +
+	"The FIRST-PASS JSON EXTRACTION for that image is provided immediately following these instructions.\n\n" +
+	"YOUR TASK: Assume the provided FIRST-PASS JSON is largely correct. Your goal is to carefully compare THIS FIRST-PASS JSON against the ATTACHED PRESCRIPTION IMAGE and make ONLY the following types of modifications to the FIRST-PASS JSON:\n" +
+	"   A. CORRECTIONS: If a piece of information in the FIRST-PASS JSON directly CONTRADICTS what is clearly visible on the ATTACHED PRESCRIPTION IMAGE, or is an obvious transcription error (e.g., 'Jihn' instead of 'John', a clearly wrong date), correct it based on the ATTACHED PRESCRIPTION IMAGE.\n" +
+	"   B. ADDITIONS: If critical information (like a prescribed medication, a primary diagnosis, or a core patient identifier like last name if clearly visible) is OBVIOUSLY MISSING from the FIRST-PASS JSON but is CLEARLY VISIBLE on the ATTACHED PRESCRIPTION IMAGE, add it.\n" +
+	"   C. NECESSARY OMISSIONS: Only omit entire sections or specific fields from the FIRST-PASS JSON if the information is UNDOUBTEDLY ABSENT from the ATTACHED PRESCRIPTION IMAGE or was clearly an error/hallucination in the first pass (e.g., a medication listed that has no corresponding mark or mention on the form).\n\n" +
+	"IMPORTANT PRINCIPLE: **PRESERVE information from the FIRST-PASS JSON unless there is a CLEAR and UNDENIABLE reason (contradiction, obvious error, verifiable absence on image) to change or omit it.** Do NOT omit data (especially patient details, prescriber details, existing medications) simply because it differs from examples in prior message history or if you have low confidence re-reading it perfectly from the image *during this review pass*. Trust the first pass unless a definite error is found on review against the attached image.\n\n" +
+	"CRITICAL REVIEW AREAS (Apply the A, B, C modification types above to the provided FIRST-PASS JSON using the ATTACHED PRESCRIPTION IMAGE):\n" +
+	"1.  **Numerical Data:** (e.g., weight, quantity, refills, IDs, dates, NPI).\n" +
+	"2.  **Prescribed Medications (`medications` array):** Check for completeness based on image markings and accuracy of details for existing entries.\n" +
+	"3.  **Diagnoses (`diagnosis` object):** Verify description, ICD-10, and date.\n" +
+	"4.  **Patient & Prescriber Details (names, addresses, phones):** **Strongly prefer to PRESERVE this data from FIRST-PASS JSON.** Only correct obvious typos verifiable against the ATTACHED IMAGE.\n" +
+	"5.  **`daw_code`:** Re-evaluate based on signature on ATTACHED IMAGE.\n" +
+	"6.  **`sig` vs. `administration_notes`:** Ensure `sig` is a literal transcription from ATTACHED IMAGE and `administration_notes` is its correct translation.\n\n" +
+	"CONTEXTUAL GUIDANCE (Role of Examples from Prior Message History):\n" +
+	"Examples from previous turns in the chat history are for understanding structure, terminology normalization, and interpreting ambiguous form elements ONLY. The CONTENT of the output JSON MUST derive from the ATTACHED PRESCRIPTION IMAGE as reflected in, and refined from, the provided FIRST-PASS JSON.\n" +
+	"**DO NOT OMIT DATA FROM THE CURRENT PRESCRIPTION'S JSON JUST BECAUSE IT LOOKS DIFFERENT FROM AN EXAMPLE.**\n\n" +
+	"COMPLETENESS PRIORITY: It is better to retain slightly imperfect but present data from the first pass (which a human can quickly verify/fix) than to aggressively delete correct information. Your goal is refinement, not starting from scratch. DO NOT return an empty or mostly empty JSON if the provided FIRST-PASS JSON contained data and the ATTACHED PRESCRIPTION IMAGE is not blank.\n\n" +
+	"Return the refined JSON. If, after applying these specific review checks, NO changes (A, B, or C) were made to the FIRST-PASS JSON, return it unchanged."

@@ -186,26 +186,13 @@ func (p *GeminiParser) secondParsingPass(ctx context.Context, contentType string
 		history = append(history, genai.NewContentFromText(sample.Content, genai.RoleModel))
 	}
 
-	firstPassParts := []*genai.Part{
-		{
-			InlineData: &genai.Blob{
-				MIMEType: contentType,
-				Data:     fileBytes,
-			},
-		},
-		genai.NewPartFromText(parsePrompt),
-	}
-
-	history = append(history, genai.NewContentFromParts(firstPassParts, genai.RoleUser))
-
 	firstPassText, err := json.Marshal(firstPassRx)
 	if err != nil {
 		return firstPassRx, fmt.Errorf("failed to marshal first pass response: %w", err)
 	}
 
-	history = append(history, genai.NewContentFromText(string(firstPassText), genai.RoleModel))
-
-	config := &genai.GenerateContentConfig{
+	p.logger.Info("first pass result marshaled", zap.String("first_pass_json", string(firstPassText)))
+	cfg := &genai.GenerateContentConfig{
 		SystemInstruction: genai.NewContentFromText(systemPrompt, genai.RoleUser),
 		ResponseMIMEType:  "application/json",
 		ResponseSchema:    &geminiSchema,
@@ -214,7 +201,7 @@ func (p *GeminiParser) secondParsingPass(ctx context.Context, contentType string
 	chat, err := p.client.Chats.Create(
 		ctx,
 		"gemini-2.5-flash-preview-05-20",
-		config,
+		cfg,
 		history,
 	)
 	if err != nil {
@@ -224,12 +211,20 @@ func (p *GeminiParser) secondParsingPass(ctx context.Context, contentType string
 	resp, err := chat.SendMessage(
 		ctx,
 		genai.Part{
-			Text: reviewPrompt,
+			InlineData: &genai.Blob{
+				MIMEType: contentType,
+				Data:     fileBytes,
+			},
+		},
+		genai.Part{
+			Text: fmt.Sprintf("%s\n\nHere is the FIRST-PASS JSON EXTRACTION for the attached image:\n\n```json\n%s\n```", reviewPrompt, string(firstPassText)),
 		},
 	)
 	if err != nil {
 		return firstPassRx, fmt.Errorf("failed to run second pass: %w", err)
 	}
+
+	p.logger.Info("second parsing pass completed", zap.String("output", resp.Text()))
 
 	var secondPassRx models.Prescription
 	err = json.Unmarshal([]byte(resp.Text()), &secondPassRx)
