@@ -1,0 +1,116 @@
+{
+  "date_written": "2025-05-23",
+  "date_needed": "2025-05-28",
+  "patient": {
+    "first_name": "Rachel",
+    "middle_name": "",
+    "last_name": "Stevens",
+    "dob": "1983-08-16",
+    "sex": "Female",
+    "weight": {
+      "unit": "lbs",
+      "value": "179"
+    },
+    "height": {
+      "unit": "",
+      "value": ""
+    },
+    "address": {
+      "street": "68 Bird Spring Lake",
+      "city": "Houston",
+      "state": "TX",
+      "zip": "77056"
+    },
+    "phone_numbers": [
+      {
+        "label": "Mobile",
+        "number": "2815674995",
+        "extension": ""
+      }
+    ],
+    "allergies": [
+      "Aspirin"
+    ],
+    "emergency_contact": {
+      "name": "",
+      "relationship": "",
+      "phone": ""
+    },
+    "insurance": [
+      {
+        "type": "Primary",
+        "provider": "Cigna",
+        "id_number": "70201540",
+        "group_number": "",
+        "rx_bin": "120453",
+        "pcn": "DGX",
+        "policyholder_name": "Rachel Stevens",
+        "policyholder_dob": "",
+        "phone_number": "18003251404"
+      }
+    ]
+  },
+  "prescriber": {
+    "name": "Daniel Stockman",
+    "specialty": "Dermatology",
+    "npi": "6364816846",
+    "state_license": "4321275688",
+    "dea": "",
+    "office": {
+      "name": "Mountain View Med",
+      "address": {
+        "street": "2059 Payne Street",
+        "city": "Houston",
+        "state": "TX",
+        "zip": "77028"
+      },
+      "phone": "2812104657",
+      "fax": "8326302414",
+      "contact_name": "Barbara Watts",
+      "contact_email": ""
+    }
+  },
+  "diagnosis": {
+    "date_of_diagnosis": "2025-05-23",
+    "primary_diagnosis": {
+      "description": "Plaque Psoriasis",
+      "icd10_code": "L40.0"
+    },
+    "additional_diagnoses": null
+  },
+  "clinical_info": [
+    "TB Test (Date): 5/23/2025, Negative"
+  ],
+  "medications": [
+    {
+      "drug_name": "HUMIRA",
+      "ndc": "0074-0243-02",
+      "form": "Syringe",
+      "strength": "40 mg/0.4 mL",
+      "sig": "Two 40 mg SQ inj. Day 1, one 40 mg SQ inj. Day 8, one 40 mg SQ inj. Day 22",
+      "quantity": "4",
+      "refills": "0",
+      "start_date": "",
+      "duration": "1 Month",
+      "administration_notes": "Inject two 40 mg subcutaneously on Day 1, then one 40 mg subcutaneously on Day 8, and one 40 mg subcutaneously on Day 22.",
+      "indication": "Plaque Psoriasis"
+    }
+  ],
+  "therapy_status": "New",
+  "failed_therapies": null,
+  "delivery": {
+    "destination": "Patient's Home",
+    "notes": ""
+  },
+  "prescriber_signature": {
+    "date": "2025-05-23",
+    "daw_code": "0"
+  },
+  "attachments": {
+    "insurance_cards": false,
+    "lab_results": false,
+    "pathology_reports": false,
+    "clinical_notes": false,
+    "other_documents": false
+  }
+}
