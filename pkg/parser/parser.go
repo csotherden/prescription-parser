@@ -27,6 +27,9 @@ type Parser interface {
 	// UploadImage uploads an image to persistent storage and returns its ID.
 	// The image can then be referenced in subsequent API calls.
 	UploadImage(ctx context.Context, fileName string, file io.Reader) (string, error)
+
+	// ScoreResult scores the result of a parser against a validated expected JSON.
+	ScoreResult(ctx context.Context, expectedJSON, outputJSON string) (models.ParserResultScore, error)
 }
 
 // NewParser creates a new instance of a Parser implementation based on config.

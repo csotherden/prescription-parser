@@ -443,3 +443,57 @@ var geminiSchema = genai.Schema{
 		},
 	},
 }
+
+// parserResultScoreSchema defines the structure for evaluation of parsing results
+var parserResultScoreSchema = genai.Schema{
+	Type:        "OBJECT",
+	Description: "Evaluation of prescription parsing results",
+	Properties: map[string]*genai.Schema{
+		"field_scores": {
+			Type:        "ARRAY",
+			Description: "Detailed scoring information for each evaluated field",
+			Items: &genai.Schema{
+				Type:        "OBJECT",
+				Description: "Evaluation of a single field in the parsing results",
+				Properties: map[string]*genai.Schema{
+					"field_path": {
+						Type:        "STRING",
+						Description: "Path to the evaluated field in dot notation (e.g. patient.first_name, medications[0].form)",
+					},
+					"expected_value": {
+						Type:        "STRING",
+						Description: "The value expected for this field, can be null if not present in expected data",
+					},
+					"output_value": {
+						Type:        "STRING",
+						Description: "The value produced by the parser, can be null if missing",
+					},
+					"score": {
+						Type:        "NUMBER",
+						Description: "Score between 0.0 and 1.0 indicating correctness of the parsed value. Possible scores are 0.0, 0.25, 0.75, and 1.0.",
+					},
+					"reasoning": {
+						Type:        "STRING",
+						Description: "Explanation for why this score was assigned",
+					},
+				},
+			},
+		},
+		"total_awarded_points": {
+			Type:        "NUMBER",
+			Description: "Sum of points awarded across all evaluated fields. Each field is scored between 0.0 and 1.0. Possible scores are 0.0, 0.25, 0.75, and 1.0.",
+		},
+		"total_possible_points": {
+			Type:        "NUMBER",
+			Description: "Maximum possible points if all fields were perfectly parsed. Up to one point is awarded for each field.",
+		},
+		"overall_score_percentage": {
+			Type:        "NUMBER",
+			Description: "Percentage score calculated as (awarded/possible)*100",
+		},
+		"summary_critique": {
+			Type:        "STRING",
+			Description: "Overall assessment of the parser output quality based on scores. This is a human-readable summary of the parser's performance.",
+		},
+	},
+}

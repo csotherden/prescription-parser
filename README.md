@@ -157,6 +157,54 @@ Form-data:
 GET /api/parser/prescription/{job_id}
 ```
 
+## Parser Evaluation Utility
+
+The project includes a `parser-eval` utility that evaluates the parser's accuracy by comparing generated output against expected JSON. This is valuable for:
+
+- Testing parser accuracy on known prescription formats
+- Validating improvements to the parsing pipeline
+- Benchmarking different LLM backends
+
+### Running Parser Evaluation
+
+```bash
+go run cmd/parser-eval/main.go -pdf path/to/prescription.pdf -json path/to/expected.json
+```
+
+### Command Line Options
+
+- `-env`: Path to environment file (default: `.env`)
+- `-pdf`: Path to test PDF file (required)
+- `-json`: Path to expected JSON output file (required)
+- `-iterations`: Number of times to run the parser (default: 1)
+
+### Evaluation Output
+
+The utility produces detailed scoring information for each parsed field, including:
+
+- Overall percentage score
+- Points awarded and total possible points
+- Summary critique of parser performance
+- Per-field scores with reasoning for each score
+
+Example output:
+```
+Filename: Humira4.pdf - Job ID: 62da963f-2010-49cc-a0ff-4aa4a6b91c1b
+Score: 96.18% - (69.25 / 72)
+Feedback:
+The parser achieved a very high overall score, indicating strong accuracy and completeness. Most fields were extracted perfectly. Minor errors were observed in the patient's phone number label, prescriber's NPI, and prescriber's office fax number, which were significantly different. There were also two instances of semantically equivalent variations in 'clinical_info' and 'medications[0].administration_notes', which suggests minor variations in phrasing rather than significant data extraction errors.
+```
+
+### Scoring Methodology
+
+Fields are scored on a scale from 0.0 to 1.0:
+- 1.0: Exact match
+- 0.75: Semantically equivalent (e.g., abbreviations)
+- 0.25: Partial match
+- 0.0: Missing or incorrect
+
+The overall percentage is calculated as (total awarded points / total possible points) * 100.
+
 ## Continuous Improvement
 
 The system learns from sample prescriptions stored in the vector database. When adding a new sample prescription, the system:
