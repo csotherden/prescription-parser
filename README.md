@@ -82,6 +82,25 @@ graph TD
     J --> Result[Structured Prescription JSON]
 ```
 
+### Parsing Accuracy
+While the multi-pass processing pipeline has been an interesting experiment, thus far the outcome has actually been lower accuracy than the first pass. Running the parser with no sample data loaded yields on average 95% accuracy while the accuracy with three samples loaded is currently ~50%. I want to continue to experiement with tuning the second pass parsing prompt to improve the results.
+
+```
+### Zero Samples Loaded
+Filename: Humira4.pdf - Job ID: b1d1f903-5429-4d04-ba7f-6b05472d30f8
+Score: 95.83% - (69.00 / 72)
+Feedback:
+The parser demonstrated high accuracy across most fields, achieving exact matches for a significant portion of the data. Minor semantic differences were observed in the 'clinical_info' and 'medications[0].administration_notes' fields, which were scored as semantically equivalent. However, two fields, 'patient.phone_numbers[0].label' and 'prescriber.npi', showed significant discrepancies, and most notably, the 'medications[0].indication' field was completely missed by the parser, resulting in a 0.0 score. Overall, the parser performed very well, but there are clear areas for improvement regarding specific data points and ensuring completeness.
+```
+
+```
+### Three samples loaded
+Filename: Humira4.pdf - Job ID: c4294091-237b-4032-b5ad-234d26de2dd4
+Score: 52.78% - (38.00 / 72)
+Feedback:
+The parser demonstrated moderate performance in extracting prescription details. While it accurately captured basic patient demographic information (DOB, sex, address) and prescriber office details, it struggled significantly with critical fields. Key patient identifiers (first name, last name), prescriber details (name, NPI), date needed, and the entire medications section were either missing or incorrect, leading to a substantial number of zero-point scores. The `clinical_info` and `delivery.destination` fields were also entirely missed. Improvements are needed in reliably extracting core entities and their associated details, especially medication information and patient/prescriber names and identifiers.
+```
+
 ## Setup and Running
 
 ### Prerequisites
@@ -205,12 +224,4 @@ Fields are scored on a scale from 0.0 to 1.0:
 
 The overall percentage is calculated as (total awarded points / total possible points) * 100.
 
-## Continuous Improvement
 
-The system learns from sample prescriptions stored in the vector database. When adding a new sample prescription, the system:
-
-1. Uploads the prescription image
-2. Generates vector embeddings for the provided JSON
-3. Stores both in the database
-
-These samples are later used during the parsing process to improve accuracy, especially for prescriptions with similar formats or structures.
