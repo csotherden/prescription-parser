@@ -174,3 +174,7 @@ func (m *MockParser) GetUploadImageCalls() []uploadImageCall {
 	defer m.mu.Unlock()
 	return m.uploadImageCalls
 }
+
+func (m *MockParser) ScoreResult(ctx context.Context, expectedJSON, outputJSON string) (models.ParserResultScore, error) {
+	return models.ParserResultScore{}, nil
+}

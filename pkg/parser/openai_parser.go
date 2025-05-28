@@ -221,7 +221,7 @@ func (p *OpenAIParser) firstParsingPass(ctx context.Context, fileID string) (mod
 	return rx, nil
 }
 
-// secondParsingPass performs a review with example context.
+// secondParsingPass performs a fresh parsing pass with example context.
 // It uses similar prescription samples to refine the initial parsing results,
 // potentially improving accuracy by learning from precedents.
 func (p *OpenAIParser) secondParsingPass(ctx context.Context, fileID string, samples []models.SamplePrescription, firstPassRx models.Prescription) (models.Prescription, error) {
@@ -266,11 +266,6 @@ func (p *OpenAIParser) secondParsingPass(ctx context.Context, fileID string, sam
 		messages = append(messages, sampleResponse)
 	}
 
-	firstPassResponseText, err := json.Marshal(firstPassRx)
-	if err != nil {
-		return firstPassRx, fmt.Errorf("failed to marshal first pass response: %w", err)
-	}
-
 	reviewMessage := responses.ResponseInputItemParamOfMessage(
 		responses.ResponseInputMessageContentListParam{
 			responses.ResponseInputContentUnionParam{
@@ -281,7 +276,7 @@ func (p *OpenAIParser) secondParsingPass(ctx context.Context, fileID string, sam
 			},
 			responses.ResponseInputContentUnionParam{
 				OfInputText: &responses.ResponseInputTextParam{
-					Text: fmt.Sprintf("%s\n\nHere is the FIRST-PASS JSON EXTRACTION for the attached image:\n\n```json\n%s\n```", reviewPrompt, string(firstPassResponseText)),
+					Text: reviewPrompt,
 					Type: "input_text",
 				},
 			},

@@ -54,26 +54,15 @@ var parsePrompt = "Parse the provided prescription image into a JSON object acco
 
 // reviewPrompt instructs the AI model to review and refine the parsed prescription data.
 // It's used in the second parsing pass to improve accuracy by double-checking specific fields.
-var reviewPrompt = "This is a REVIEW and REFINEMENT pass.\n" +
-	"You are working with the PRESCRIPTION IMAGE ATTACHED TO THIS MESSAGE.\n" +
-	"The FIRST-PASS JSON EXTRACTION for that image is provided immediately following these instructions.\n\n" +
-	"YOUR TASK: Assume the provided FIRST-PASS JSON is largely correct. Your goal is to carefully compare THIS FIRST-PASS JSON against the ATTACHED PRESCRIPTION IMAGE and make ONLY the following types of modifications to the FIRST-PASS JSON:\n" +
-	"   A. CORRECTIONS: If a piece of information in the FIRST-PASS JSON directly CONTRADICTS what is clearly visible on the ATTACHED PRESCRIPTION IMAGE, or is an obvious transcription error (e.g., 'Jihn' instead of 'John', a clearly wrong date), correct it based on the ATTACHED PRESCRIPTION IMAGE.\n" +
-	"   B. ADDITIONS: If critical information (like a prescribed medication, a primary diagnosis, or a core patient identifier like last name if clearly visible) is OBVIOUSLY MISSING from the FIRST-PASS JSON but is CLEARLY VISIBLE on the ATTACHED PRESCRIPTION IMAGE, add it.\n" +
-	"   C. NECESSARY OMISSIONS: Only omit entire sections or specific fields from the FIRST-PASS JSON if the information is UNDOUBTEDLY ABSENT from the ATTACHED PRESCRIPTION IMAGE or was clearly an error/hallucination in the first pass (e.g., a medication listed that has no corresponding mark or mention on the form).\n\n" +
-	"IMPORTANT PRINCIPLE: **PRESERVE information from the FIRST-PASS JSON unless there is a CLEAR and UNDENIABLE reason (contradiction, obvious error, verifiable absence on image) to change or omit it.** Do NOT omit data (especially patient details, prescriber details, existing medications) simply because it differs from examples in prior message history or if you have low confidence re-reading it perfectly from the image *during this review pass*. Trust the first pass unless a definite error is found on review against the attached image.\n\n" +
-	"CRITICAL REVIEW AREAS (Apply the A, B, C modification types above to the provided FIRST-PASS JSON using the ATTACHED PRESCRIPTION IMAGE):\n" +
-	"1.  **Numerical Data:** (e.g., weight, quantity, refills, IDs, dates, NPI).\n" +
-	"2.  **Prescribed Medications (`medications` array):** Check for completeness based on image markings and accuracy of details for existing entries.\n" +
-	"3.  **Diagnoses (`diagnosis` object):** Verify description, ICD-10, and date.\n" +
-	"4.  **Patient & Prescriber Details (names, addresses, phones):** **Strongly prefer to PRESERVE this data from FIRST-PASS JSON.** Only correct obvious typos verifiable against the ATTACHED IMAGE.\n" +
-	"5.  **`daw_code`:** Re-evaluate based on signature on ATTACHED IMAGE.\n" +
-	"6.  **`sig` vs. `administration_notes`:** Ensure `sig` is a literal transcription from ATTACHED IMAGE and `administration_notes` is its correct translation.\n\n" +
-	"CONTEXTUAL GUIDANCE (Role of Examples from Prior Message History):\n" +
-	"Examples from previous turns in the chat history are for understanding structure, terminology normalization, and interpreting ambiguous form elements ONLY. The CONTENT of the output JSON MUST derive from the ATTACHED PRESCRIPTION IMAGE as reflected in, and refined from, the provided FIRST-PASS JSON.\n" +
-	"**DO NOT OMIT DATA FROM THE CURRENT PRESCRIPTION'S JSON JUST BECAUSE IT LOOKS DIFFERENT FROM AN EXAMPLE.**\n\n" +
-	"COMPLETENESS PRIORITY: It is better to retain slightly imperfect but present data from the first pass (which a human can quickly verify/fix) than to aggressively delete correct information. Your goal is refinement, not starting from scratch. DO NOT return an empty or mostly empty JSON if the provided FIRST-PASS JSON contained data and the ATTACHED PRESCRIPTION IMAGE is not blank.\n\n" +
-	"Return the refined JSON. If, after applying these specific review checks, NO changes (A, B, or C) were made to the FIRST-PASS JSON, return it unchanged."
+var reviewPrompt = "Your primary task is to parse the **CURRENT prescription image** provided in this turn into a JSON object according to the schema and all general system instructions.\n\n" +
+	"**Learning from Prior Examples (If Present in Message History):**\n" +
+	"The prior examples of prescriptions and their JSON outputs in the message history are provided to help you learn specific **terminology normalizations** and **formatting preferences**. Pay attention to patterns in the examples for things like:\n" +
+	"\t 1.  **Phone Number Labels:** Notice how checkboxes or indicators next to phone numbers in the examples (e.g., 'M', 'H', 'W') are translated into specific JSON labels (e.g., \"Mobile\", \"Home\", \"Work\"). Apply similar logic to the CURRENT image.\n" +
+	"\t 2.  **`administration_notes` Standardization:** Observe the style, phrasing, and level of detail used in the `administration_notes` field in the examples after SIG translation. Aim for similar consistency and clarity when generating this field for the CURRENT image.\n" +
+	"\t 3.  **Other Terminological Consistency:** Look for any other consistent terminology choices made in the example JSONs for fields that might have variable input on the form (e.g., units, medication forms, etc.) and apply similar standardization to the CURRENT image where appropriate.\n\n" +
+	"**Crucial Instruction:**\n" +
+	"While learning these *normalization patterns* from the examples, ALL specific data values (patient names, medication details, dates, addresses, NPIs, etc.) for the output JSON **MUST be extracted directly and exclusively from the CURRENT prescription image** you are parsing now. Do not copy data values from examples.\n\n" +
+	"**Parse the CURRENT prescription image now, applying any relevant normalization patterns learned from the examples.**\n"
 
 // scoringPrompt instructs the AI model to score the parsed prescription data for prompt regression testing and tuning.
 var scoringPrompt = "You are an expert JSON comparison and scoring AI. Your task is to compare a Parser Output JSON against a Validated Expected JSON for a medical prescription. You will score the Parser Output JSON field by field based on its accuracy and completeness relative to the Validated Expected JSON.\n\n" +

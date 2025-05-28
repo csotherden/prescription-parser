@@ -179,19 +179,13 @@ func (p *GeminiParser) secondParsingPass(ctx context.Context, contentType string
 	for _, sample := range samples {
 		sampleParts := []*genai.Part{
 			genai.NewPartFromURI(sample.FileID, sample.MIMEType),
-			genai.NewPartFromText(parsePrompt),
+			genai.NewPartFromText(reviewPrompt),
 		}
 
 		history = append(history, genai.NewContentFromParts(sampleParts, genai.RoleUser))
 		history = append(history, genai.NewContentFromText(sample.Content, genai.RoleModel))
 	}
 
-	firstPassText, err := json.Marshal(firstPassRx)
-	if err != nil {
-		return firstPassRx, fmt.Errorf("failed to marshal first pass response: %w", err)
-	}
-
-	p.logger.Info("first pass result marshaled", zap.String("first_pass_json", string(firstPassText)))
 	cfg := &genai.GenerateContentConfig{
 		SystemInstruction: genai.NewContentFromText(systemPrompt, genai.RoleUser),
 		ResponseMIMEType:  "application/json",
@@ -217,14 +211,12 @@ func (p *GeminiParser) secondParsingPass(ctx context.Context, contentType string
 			},
 		},
 		genai.Part{
-			Text: fmt.Sprintf("%s\n\nHere is the FIRST-PASS JSON EXTRACTION for the attached image:\n\n```json\n%s\n```", reviewPrompt, string(firstPassText)),
+			Text: parsePrompt,
 		},
 	)
 	if err != nil {
 		return firstPassRx, fmt.Errorf("failed to run second pass: %w", err)
 	}
-
-	p.logger.Info("second parsing pass completed", zap.String("output", resp.Text()))
 
 	var secondPassRx models.Prescription
 	err = json.Unmarshal([]byte(resp.Text()), &secondPassRx)
