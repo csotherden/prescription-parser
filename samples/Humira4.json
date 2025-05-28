@@ -1,0 +1,116 @@
+{
+  "date_written": "2025-05-26",
+  "date_needed": "2025-06-02",
+  "patient": {
+    "first_name": "Ivette",
+    "middle_name": "",
+    "last_name": "Drumm",
+    "dob": "2011-10-20",
+    "sex": "Female",
+    "weight": {
+      "unit": "lbs",
+      "value": "126"
+    },
+    "height": {
+      "unit": "",
+      "value": ""
+    },
+    "address": {
+      "street": "1384 Leverton Cove Road",
+      "city": "Palmer",
+      "state": "MA",
+      "zip": "01069"
+    },
+    "phone_numbers": [
+      {
+        "label": "Mobile",
+        "number": "4132845899",
+        "extension": ""
+      }
+    ],
+    "allergies": [
+      "Sulfonamides"
+    ],
+    "emergency_contact": {
+      "name": "",
+      "relationship": "",
+      "phone": ""
+    },
+    "insurance": [
+      {
+        "type": "Primary",
+        "provider": "Express Scripts",
+        "id_number": "CWK000100002",
+        "group_number": "UTSYSRX",
+        "rx_bin": "610014",
+        "pcn": "A4",
+        "policyholder_name": "Roger Drumm",
+        "policyholder_dob": "1987-07-16",
+        "phone_number": "18007564574"
+      }
+    ]
+  },
+  "prescriber": {
+    "name": "Kathleen Schmidt",
+    "specialty": "Dermatology",
+    "npi": "9523636869",
+    "state_license": "0207679674",
+    "dea": "",
+    "office": {
+      "name": "Springfield Dermatology Center",
+      "address": {
+        "street": "2949 Hilltop Street",
+        "city": "Springfield",
+        "state": "MA",
+        "zip": "01103"
+      },
+      "phone": "4137348946",
+      "fax": "4138835992",
+      "contact_name": "Anna Myers",
+      "contact_email": ""
+    }
+  },
+  "diagnosis": {
+    "date_of_diagnosis": "2025-05-26",
+    "primary_diagnosis": {
+      "description": "Adolescent Hidradenitis Suppurativa",
+      "icd10_code": "L73.2"
+    },
+    "additional_diagnoses": null
+  },
+  "clinical_info": [
+    "TB Test: Neg (2025-05-26)"
+  ],
+  "medications": [
+    {
+      "drug_name": "HUMIRA",
+      "ndc": "0074-0243-02",
+      "form": "Syringe",
+      "strength": "40 mg/0.4 mL",
+      "sig": "Two 40 mg SQ inj. Day 1, one 40 mg SQ inj. Day 8, one 40 mg SQ inj. Day 22",
+      "quantity": "4",
+      "refills": "0",
+      "start_date": "",
+      "duration": "",
+      "administration_notes": "Inject two 40 mg subcutaneous injections on Day 1, one 40 mg subcutaneous injection on Day 8, and one 40 mg subcutaneous injection on Day 22.",
+      "indication": "Adolescent Hidradenitis Suppurativa"
+    }
+  ],
+  "therapy_status": "New",
+  "failed_therapies": null,
+  "delivery": {
+    "destination": "Prescriber's Office",
+    "notes": ""
+  },
+  "prescriber_signature": {
+    "date": "2025-05-26",
+    "daw_code": "0"
+  },
+  "attachments": {
+    "insurance_cards": false,
+    "lab_results": false,
+    "pathology_reports": false,
+    "clinical_notes": false,
+    "other_documents": false
+  }
+}
